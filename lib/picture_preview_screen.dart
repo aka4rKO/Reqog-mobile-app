@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/rendering.dart';
@@ -20,6 +21,7 @@ class DisplayPictureScreen extends StatefulWidget {
 enum TtsState { playing, stopped, paused, continued }
 
 class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
+  final Dio dio = Dio();
   FlutterTts flutterTts;
   TtsState ttsState = TtsState.stopped;
   stt.SpeechToText _speech;
@@ -27,6 +29,7 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
   String _question = "";
   String _answer = "";
   bool _available = false;
+  String url = "http://0088414b7254.ngrok.io/get-prediction";
 
   get isPlaying => ttsState == TtsState.playing;
   get isStopped => ttsState == TtsState.stopped;
@@ -119,20 +122,36 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
   @override
   void dispose() {
     super.dispose();
-    flutterTts.stop();
+    // flutterTts.stop();
+  }
+
+  Future<String> uploadData() async {
+    String fileName = widget.imagePath.split('/').last;
+    print("File name: " + fileName);
+    FormData formData = new FormData.fromMap({
+      "image":
+          await MultipartFile.fromFile(widget.imagePath, filename: fileName),
+      "question": _question,
+    });
+    Response response = await dio.post(url, data: formData);
+    return response.toString();
   }
 
   Future<void> initSpeechState() async {
     var available = await _speech.initialize(
-      onStatus: (val) {
+      onStatus: (val) async {
         print('onStatus: $val');
         if (val == 'notListening') {
           setState(() => _isListening = false);
+          // if (mounted) {
+          //   setState(() => _isListening = false);
+          // }
           _speech.stop();
           if (_question != "") {
-            _speak("Please wait");
-            // TODO: Add the API call to send image and question to get answer
-            // and set the answer to the answer got from the API
+            await _speak("Please wait");
+            _answer = await uploadData();
+            print("Predicted answer: " + _answer);
+            await _speak("The answer is " + _answer);
           }
         }
       },
@@ -167,6 +186,7 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
             child: FloatingActionButton(
                 onPressed: () {
                   _question = "";
+                  _answer = "";
                   _listen();
                 },
                 child: Icon(_isListening ? Icons.mic : Icons.mic_none)),

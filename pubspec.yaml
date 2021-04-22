@@ -31,6 +31,8 @@ dependencies:
   flutter_tts: ^3.0.0
   flutter_beep: ^0.2.0
   flutter_native_image: ^0.0.6
+  http: ^0.13.1
+  dio: ^4.0.0
 
 
   # The following adds the Cupertino Icons font to your application.
