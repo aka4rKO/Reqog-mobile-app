@@ -136,12 +136,13 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
       onStatus: (val) async {
         print('onStatus: $val');
         if (val == 'notListening') {
-          _speech.stop();
+          if (_question != "") {
+            _speech.stop();
+          }
         }
       },
       onError: (val) {
         print('onError: $val');
-        setState(() => _isListening = false);
         _speech.stop();
       },
     );
