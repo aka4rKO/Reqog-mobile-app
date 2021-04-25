@@ -52,13 +52,6 @@ class TakePictureScreenState extends State<TakePictureScreen> {
   }
 
   @override
-  void dispose() {
-    // Dispose of the controller when the widget is disposed.
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       // Wait until the controller is initialized before displaying the
@@ -104,7 +97,6 @@ class TakePictureScreenState extends State<TakePictureScreen> {
                 // Cropping image to square
                 String croppedImagePath = await _resizePhoto(image?.path);
 
-                // If the picture was taken, display it on a new screen.
                 Navigator.push(
                   context,
                   MaterialPageRoute(

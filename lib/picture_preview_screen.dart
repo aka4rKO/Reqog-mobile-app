@@ -29,7 +29,7 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
   String _question = "";
   String _answer = "";
   bool _available = false;
-  String url = "http://0088414b7254.ngrok.io/get-prediction";
+  String url = "http://871d566c5610.ngrok.io/get-prediction";
 
   get isPlaying => ttsState == TtsState.playing;
   get isStopped => ttsState == TtsState.stopped;
@@ -119,12 +119,6 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
     if (result == 1) setState(() => ttsState = TtsState.stopped);
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    // flutterTts.stop();
-  }
-
   Future<String> uploadData() async {
     String fileName = widget.imagePath.split('/').last;
     print("File name: " + fileName);
@@ -142,17 +136,7 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
       onStatus: (val) async {
         print('onStatus: $val');
         if (val == 'notListening') {
-          setState(() => _isListening = false);
-          // if (mounted) {
-          //   setState(() => _isListening = false);
-          // }
           _speech.stop();
-          if (_question != "") {
-            await _speak("Please wait");
-            _answer = await uploadData();
-            print("Predicted answer: " + _answer);
-            await _speak("The answer is " + _answer);
-          }
         }
       },
       onError: (val) {
@@ -284,8 +268,15 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
       if (_available) {
         setState(() => _isListening = true);
         _speech.listen(
-          onResult: (val) => setState(() {
+          onResult: (val) => setState(() async {
             _question = val.recognizedWords;
+            _isListening = false;
+            if (_question != "" && _speech.isNotListening) {
+              await _speak("Please wait");
+              _answer = await uploadData();
+              print("Predicted answer: " + _answer);
+              await _speak("The answer is " + _answer);
+            }
           }),
         );
       }
