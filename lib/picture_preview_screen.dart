@@ -29,7 +29,7 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
   String _question = "";
   String _answer = "";
   bool _available = false;
-  String url = "http://871d566c5610.ngrok.io/get-prediction";
+  String url = "http://ab9deacf6b95.ngrok.io/get-prediction";
 
   get isPlaying => ttsState == TtsState.playing;
   get isStopped => ttsState == TtsState.stopped;
